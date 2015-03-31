@@ -1,6 +1,9 @@
-import java.util.ArrayList;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.Scanner;
 public class SeamCarving
 {
 
@@ -9,7 +12,7 @@ public class SeamCarving
 		try {
 			InputStream f = ClassLoader.getSystemClassLoader().getResourceAsStream(fn);
 			BufferedReader d = new BufferedReader(new InputStreamReader(f));
-			String magic = d.readLine();
+			d.readLine();
 			String line = d.readLine();
 			while (line.startsWith("#")) {
 				line = d.readLine();
@@ -19,7 +22,7 @@ public class SeamCarving
 			int height = s.nextInt();		   
 			line = d.readLine();
 			s = new Scanner(line);
-			int maxVal = s.nextInt();
+			s.nextInt();
 			int[][] im = new int[height][width];
 			s = new Scanner(d);
 			int count = 0;
@@ -75,17 +78,17 @@ public class SeamCarving
 				try{
 					voisinGauche = image[i][j-1];
 				}catch(IndexOutOfBoundsException e){ // Pas de voisin gauche
-					interest[i][j] = Math.abs(valPixel - image[i][j+1]); // Différence entre le pixel et le pixel suivant en valeur absolue
+					interest[i][j] = Math.abs(valPixel - image[i][j+1]); // Diffï¿½rence entre le pixel et le pixel suivant en valeur absolue
 					existeVoisinGauche = false;
 				}
 				try{
 					voisinDroite = image[i][j+1];
 				}
 				catch(IndexOutOfBoundsException e){ // Pas de voisin droite
-					interest[i][j] = Math.abs(valPixel - image[i][j-1]); // Différence entre le pixel et le pixel suivant en valeur absolue
+					interest[i][j] = Math.abs(valPixel - image[i][j-1]); // Diffï¿½rence entre le pixel et le pixel suivant en valeur absolue
 					existeVoisinDroite = false;
 				}
-				if(existeVoisinDroite && existeVoisinGauche){ // Si on a trouvé les voisins gauche et droite
+				if(existeVoisinDroite && existeVoisinGauche){ // Si on a trouvï¿½ les voisins gauche et droite
 					interest[i][j] = Math.abs(valPixel - ((voisinDroite+voisinGauche)/2));
 				}
 			}
@@ -106,18 +109,17 @@ public class SeamCarving
 
 	public static Graph toGraph(int[][]itr){
 		int[][]indices = indices(itr);
-		int[][]interet = interest(itr);
 		int size = itr.length * itr[0].length;
 		Graph g = new Graph(size+2); // Taille du tableau + source + destination
 		int indiceSommet, indiceSommetDroite;
 		int indiceGauche1, indiceGauche2, indiceGauche3;
 		for(int i = 0; i<itr.length; i++){
-			g.addEdge(new Edge(0, i+1, 9999, 0)); // arrêtes reliant la source aux pixels gauche
+			g.addEdge(new Edge(0, i+1, 9999, 0)); // arrï¿½tes reliant la source aux pixels gauche
 			for(int j = 0; j<itr[0].length;j++){
 				indiceSommet = indices[i][j];
 				try{
 					indiceSommetDroite = indices[i][j+1];
-					g.addEdge(new Edge(indiceSommet, indiceSommetDroite,interet[i][j], 0)); // arrêtes entre le sommet et le sommet droit
+					g.addEdge(new Edge(indiceSommet, indiceSommetDroite,itr[i][j], 0)); // arrï¿½tes entre le sommet et le sommet droit
 				}
 				catch(ArrayIndexOutOfBoundsException e){}
 				try{
@@ -136,30 +138,23 @@ public class SeamCarving
 				}
 				catch(ArrayIndexOutOfBoundsException e){}
 			}
-			g.addEdge(new Edge(itr.length*(itr[0].length-1)+i+1,size+1,interet[i][itr[0].length-1], 0)); // arrêtes vers la destination
+			g.addEdge(new Edge(itr.length*(itr[0].length-1)+i+1,size+1,itr[i][itr[0].length-1], 0)); // arrï¿½tes vers la destination
 		}
 		return g;
 	}
 
 	public static void main(String []args){		
 		/* 					Test readpgm					*/
-		int[][] tab = readpgm("ex1.pgm");
-		for(int i = 0; i<tab.length; i++){
-			for(int j = 0; j<tab[i].length; j++){
-				System.out.print(tab[i][j]+" ");
-			}
-			System.out.println();
-		}
-		
+		int[][] tab = readpgm("test.pgm");
+
 		/*				Test writepgm						*/
-		writepgm(tab, "C:/Users/Florine/Desktop/test.txt");
+		//writepgm(tab, "C:/Users/Florine/Desktop/test.txt");
 
 		/*					Test toGraph					*/
 
-		/*int[][]tab = new int[][]{{3,11,24,39},
-								{8,21,29,39},
-								{74,80,100,200}};*/
-		Graph g = toGraph(tab);
-		g.writeFile("C:/Users/Florine/Desktop/Test2.txt");
+
+		Graph g = toGraph(interest(tab));
+		g.writeFile("Test2.txt");
+		
 	}
 }
